@@ -13,8 +13,11 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    FileTraverseThread.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    FileTraverseThread.h \
+    version.h
 
 FORMS    += mainwindow.ui

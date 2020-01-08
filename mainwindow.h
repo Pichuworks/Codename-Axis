@@ -11,6 +11,10 @@
 #include <QFileIconProvider>
 #include <QTreeView>
 #include <QMessageBox>
+#include <QThread>
+
+#include "FileTraverseThread.h"
+#include "version.h"
 
 namespace Ui {
 class MainWindow;
@@ -30,16 +34,25 @@ private:
     // Variables
     QString selected_photo_folder_path = "";
     QFileSystemModel *path_model = new QFileSystemModel(this);
+    QStringList file_list;
 
     // Functions
     void InitMainWindow();
     void InitFolderTree(QFileSystemModel *model);
     void DoSelectPhotoFolder(QFileSystemModel *model, const QModelIndex &index);
 
+    // Threads
+    FileTraverseThread* thread;
+
+signals:
+    void StartAnalyseFolderThread();
+
 public slots:
     void SelectPhotoFolder(const QModelIndex &index);
     void AnalyseSelectedPhotoFolder();
+    void GetAnalyseFolderResult(QStringList file_list);
     void About();
+    void StopThread();
 };
 
 #endif // MAINWINDOW_H

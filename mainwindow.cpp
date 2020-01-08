@@ -6,17 +6,18 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
     ui->statusBar->showMessage("初始化……");
 
     InitMainWindow();
     InitFolderTree(path_model);
 
+    // Button
     connect(ui->folderTree, SIGNAL(clicked(QModelIndex)), this, SLOT(SelectPhotoFolder(QModelIndex)));
     connect(ui->btnAnalysePhotoFolder, SIGNAL(clicked(bool)), this, SLOT(AnalyseSelectedPhotoFolder()));
 
-
+    // Menu
     connect(ui->actionHelpAbout, SIGNAL(triggered()), this, SLOT(About()));
+
     ui->statusBar->showMessage("就绪");
 }
 
@@ -54,10 +55,35 @@ void MainWindow::DoSelectPhotoFolder(QFileSystemModel *model, const QModelIndex 
 }
 
 void MainWindow::AnalyseSelectedPhotoFolder() {
-
+    // Thread
+    thread = new FileTraverseThread(selected_photo_folder_path);
+    connect(thread, SIGNAL(isDone(QStringList)), this, SLOT(GetAnalyseFolderResult(QStringList)));
+    connect(this, SIGNAL(destroyed()), this, SLOT(StopThread()));
+    thread->start();
+    ui->btnAnalysePhotoFolder->setDisabled(true);
 }
 
+void MainWindow::GetAnalyseFolderResult(QStringList file_list) {
+    this->file_list = file_list;
+    qDebug() << "MainWindow get result: ";
+    qDebug() << this->file_list;
+    qDebug() << "";
+    ui->btnAnalysePhotoFolder->setEnabled(true);
+}
+
+void MainWindow::StopThread() {
+    thread->quit();
+    thread->wait();
+}
 
 void MainWindow::About() {
-    QMessageBox::about(NULL, "关于", "Codename Axis, EXIF数据统计管理器。\n\nMilestone 1, Start at Jan. 5th, '19.");
+    QString about_message;
+    about_message.append("Codename Axis, EXIF数据统计管理器。\n\n");
+    about_message.append("Milestone 1, Start at Jan. 5th, '19.\n\n");
+    about_message.append("Built on " + BUILD_DATE + " " + BUILD_TIME + "\n\n");
+    about_message.append("From revision " + BUILD_INFO + "/" + BUILD_BRANCH + "\n\n");
+    about_message.append("Repo: https://github.com/Pichuworks/Codename-Axis");
+    QMessageBox messageBox(QMessageBox::NoIcon, "关于", about_message);
+    // messageBox.setIconPixmap(QPixmap("icon.png"));
+    messageBox.exec();
 }
