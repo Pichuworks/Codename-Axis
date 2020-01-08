@@ -5,6 +5,8 @@
 #include <QDebug>
 #include <QThread>
 #include <QDirIterator>
+#include <QList>
+#include <QMetaType>
 
 class FileTraverseThread : public QThread
 {
@@ -18,11 +20,11 @@ protected:
     void run();
 
 signals:
-    void isDone(QStringList);
+    void isDone(QList<QString>);
 
 private:
     QString selected_photo_folder_path;
-    QStringList file_list;
+    QList<QString> file_list;
 };
 
 #endif // FILETRAVERSETHREAD_H

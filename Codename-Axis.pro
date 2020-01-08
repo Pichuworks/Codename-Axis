@@ -21,3 +21,6 @@ HEADERS  += mainwindow.h \
     version.h
 
 FORMS    += mainwindow.ui
+
+RESOURCES += \
+    resource.qrc

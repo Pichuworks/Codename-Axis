@@ -10,9 +10,9 @@
                                                                          
 #define BUILD_DATE    "2020-01-08"                                     
                                                                          
-#define BUILD_TIME    "21:27:27"                                     
+#define BUILD_TIME    "21:32:33"                                     
                                                                          
-#define BUILD_INFO    "b5e5fc2"                                     
+#define BUILD_INFO    "349d387"                                     
                                                                          
 #define BUILD_BRANCH  "master"                                   
                                                                          

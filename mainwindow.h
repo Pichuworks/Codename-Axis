@@ -12,6 +12,8 @@
 #include <QTreeView>
 #include <QMessageBox>
 #include <QThread>
+#include <QList>
+#include <QMetaType>
 
 #include "FileTraverseThread.h"
 #include "version.h"
@@ -34,12 +36,13 @@ private:
     // Variables
     QString selected_photo_folder_path = "";
     QFileSystemModel *path_model = new QFileSystemModel(this);
-    QStringList file_list;
+    QList<QString> file_list;
 
     // Functions
     void InitMainWindow();
     void InitFolderTree(QFileSystemModel *model);
     void DoSelectPhotoFolder(QFileSystemModel *model, const QModelIndex &index);
+    void SetStatusBar(QString string);
 
     // Threads
     FileTraverseThread* thread;
@@ -50,7 +53,7 @@ signals:
 public slots:
     void SelectPhotoFolder(const QModelIndex &index);
     void AnalyseSelectedPhotoFolder();
-    void GetAnalyseFolderResult(QStringList file_list);
+    void GetAnalyseFolderResult(QList<QString> file_list);
     void About();
     void StopThread();
 };

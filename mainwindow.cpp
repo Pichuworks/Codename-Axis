@@ -6,7 +6,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->statusBar->showMessage("初始化……");
+    SetStatusBar("初始化……");
+
+    qRegisterMetaType<QList<QString> > ("QList<QString>");
 
     InitMainWindow();
     InitFolderTree(path_model);
@@ -18,7 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Menu
     connect(ui->actionHelpAbout, SIGNAL(triggered()), this, SLOT(About()));
 
-    ui->statusBar->showMessage("就绪");
+    SetStatusBar("就绪");
 }
 
 MainWindow::~MainWindow() {
@@ -57,17 +59,20 @@ void MainWindow::DoSelectPhotoFolder(QFileSystemModel *model, const QModelIndex 
 void MainWindow::AnalyseSelectedPhotoFolder() {
     // Thread
     thread = new FileTraverseThread(selected_photo_folder_path);
-    connect(thread, SIGNAL(isDone(QStringList)), this, SLOT(GetAnalyseFolderResult(QStringList)));
+    connect(thread, SIGNAL(isDone(QList<QString>)), this, SLOT(GetAnalyseFolderResult(QList<QString>)));
     connect(this, SIGNAL(destroyed()), this, SLOT(StopThread()));
     thread->start();
     ui->btnAnalysePhotoFolder->setDisabled(true);
+    SetStatusBar("正在分析文件，请稍候……");
 }
 
-void MainWindow::GetAnalyseFolderResult(QStringList file_list) {
+void MainWindow::GetAnalyseFolderResult(QList<QString> file_list) {
     this->file_list = file_list;
-    qDebug() << "MainWindow get result: ";
-    qDebug() << this->file_list;
+    qDebug() << "MainWindow get result counter: ";
+    qDebug() << this->file_list.count();
     qDebug() << "";
+    QString status_msg;
+    SetStatusBar(QString().sprintf("分析结束，共分析 %d 份文件。", file_list.count()));
     ui->btnAnalysePhotoFolder->setEnabled(true);
 }
 
@@ -76,14 +81,18 @@ void MainWindow::StopThread() {
     thread->wait();
 }
 
+void MainWindow::SetStatusBar(QString string) {
+    ui->statusBar->showMessage(string);
+}
+
 void MainWindow::About() {
     QString about_message;
     about_message.append("Codename Axis, EXIF数据统计管理器。\n\n");
     about_message.append("Milestone 1, Start at Jan. 5th, '19.\n\n");
-    about_message.append("Built on "); about_message.append(BUILD_DATE); about_message.append(" "); about_message.append(BUILD_TIME); about_message.append("\n\n");
-    about_message.append("From revision "); about_message.append(BUILD_INFO); about_message.append("/"); about_message.append(BUILD_BRANCH); about_message.append("\n\n");
+    about_message.append(QString().sprintf("Commit on %s %s , ", BUILD_DATE, BUILD_TIME));
+    about_message.append(QString().sprintf("revision %s/%s\n\n", BUILD_INFO, BUILD_BRANCH));
     about_message.append("Repo: https://github.com/Pichuworks/Codename-Axis");
-    QMessageBox messageBox(QMessageBox::NoIcon, "关于", about_message);
-    // messageBox.setIconPixmap(QPixmap("icon.png"));
-    messageBox.exec();
+    QMessageBox aboutMessageBox(QMessageBox::NoIcon, "关于", about_message);
+    aboutMessageBox.setIconPixmap(QPixmap(":/image/favicon.png"));
+    aboutMessageBox.exec();
 }
