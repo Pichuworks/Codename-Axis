@@ -80,8 +80,8 @@ void MainWindow::About() {
     QString about_message;
     about_message.append("Codename Axis, EXIF数据统计管理器。\n\n");
     about_message.append("Milestone 1, Start at Jan. 5th, '19.\n\n");
-    about_message.append("Built on " + BUILD_DATE + " " + BUILD_TIME + "\n\n");
-    about_message.append("From revision " + BUILD_INFO + "/" + BUILD_BRANCH + "\n\n");
+    about_message.append("Built on "); about_message.append(BUILD_DATE); about_message.append(" "); about_message.append(BUILD_TIME); about_message.append("\n\n");
+    about_message.append("From revision "); about_message.append(BUILD_INFO); about_message.append("/"); about_message.append(BUILD_BRANCH); about_message.append("\n\n");
     about_message.append("Repo: https://github.com/Pichuworks/Codename-Axis");
     QMessageBox messageBox(QMessageBox::NoIcon, "关于", about_message);
     // messageBox.setIconPixmap(QPixmap("icon.png"));
