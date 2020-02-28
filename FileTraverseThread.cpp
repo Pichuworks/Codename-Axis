@@ -3,6 +3,14 @@
 FileTraverseThread::FileTraverseThread(QString folder_path) {
     this->selected_photo_folder_path = folder_path;
     qRegisterMetaType<QList<QString> > ("QList<QString>");
+    // init
+    exif_mode << "Exif.Image.Make"
+              << "Exif.Image.Model"
+              << "Exif.Photo.LensModel"
+              << "Exif.Photo.FocalLength"
+              << "Exif.Photo.FNumber"
+              << "Exif.Photo.ExposureTime"
+              << "Exif.Photo.ISOSpeedRatings";
 }
 
 void FileTraverseThread::run() {
@@ -12,25 +20,56 @@ void FileTraverseThread::run() {
 void FileTraverseThread::DoFileTraverse() {
     QList<QString> get_files;
     QDir dir(selected_photo_folder_path);
+    QString str_log = "";
+
     if(!dir.exists()) {
         return;
     }
 
     QStringList filters;
-    filters << QString("*.jpg") << QString("*.png") << QString("*.nef") << QString("*.raf") << QString("*.arw") << QString("*.tif");
+    filters << QString("jpg")
+            << QString("jpeg")
+            << QString("png")
+            << QString("nef")
+            << QString("raf")
+            << QString("arw")
+            << QString("tif");
 
     // 设置过滤参数，QDir::NoDotAndDotDot表示不会去遍历上层目录
     QDirIterator dir_iterator(selected_photo_folder_path, QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
     while(dir_iterator.hasNext()) {
         dir_iterator.next();
         QFileInfo file_info = dir_iterator.fileInfo();
-        QString files = file_info.absoluteFilePath();
-        if(filters.indexOf(file_info.suffix()) != -1 || file_info.isDir())
-            get_files.append(files);
+        QString filepath = file_info.absoluteFilePath();
+        if(filters.indexOf(file_info.suffix().toLower(), Qt::CaseInsensitive) != -1 && !file_info.isDir()){
+            QString exif_disp = "";
+
+            Exiv2::Image::AutoPtr image = Exiv2::ImageFactory::open(FuckExivPath(filepath));
+
+
+            if(image.get() == 0) {
+                qDebug() << "error w/ " + filepath;
+            }
+            image->readMetadata();
+            Exiv2::ExifData ed = image->exifData();
+            if (ed.empty()){
+                qDebug() << "no exif w/" + filepath;
+            }
+            foreach(QString index, exif_mode) {
+                QString value = ed[index.toStdString()].toString().c_str();
+                exif_disp += (value + " ");
+                if(!exif_data[index].exif_detail.contains(value)) {
+                    exif_data[index].exif_detail[index] = 1;
+                }
+                else{
+                    exif_data[index].exif_detail[index]++;
+                }
+            }
+            get_files.append(filepath);
+            qDebug() << exif_disp;
+            str_log += filepath + "\n" + exif_disp + "\n\n";
     }
     file_list = get_files;
-    qDebug() << "FileTraverseThread get files counter: ";
-    qDebug() << file_list.count();
-    qDebug() << "";
-    emit isDone(file_list);
+    emit isDone(file_list, str_log);
+}
 }

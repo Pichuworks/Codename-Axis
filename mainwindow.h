@@ -1,3 +1,7 @@
+#if _MSC_VER >= 1600
+#pragma execution_character_set("utf-8")
+#endif
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
@@ -53,7 +57,7 @@ signals:
 public slots:
     void SelectPhotoFolder(const QModelIndex &index);
     void AnalyseSelectedPhotoFolder();
-    void GetAnalyseFolderResult(QList<QString> file_list);
+    void GetAnalyseFolderResult(QList<QString> file_list, QString str_log);
     void About();
     void StopThread();
 };

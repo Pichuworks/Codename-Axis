@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -59,20 +59,21 @@ void MainWindow::DoSelectPhotoFolder(QFileSystemModel *model, const QModelIndex 
 void MainWindow::AnalyseSelectedPhotoFolder() {
     // Thread
     thread = new FileTraverseThread(selected_photo_folder_path);
-    connect(thread, SIGNAL(isDone(QList<QString>)), this, SLOT(GetAnalyseFolderResult(QList<QString>)));
+    connect(thread, SIGNAL(isDone(QList<QString>, QString)), this, SLOT(GetAnalyseFolderResult(QList<QString>, QString)));
     connect(this, SIGNAL(destroyed()), this, SLOT(StopThread()));
     thread->start();
     ui->btnAnalysePhotoFolder->setDisabled(true);
     SetStatusBar("正在分析文件，请稍候……");
 }
 
-void MainWindow::GetAnalyseFolderResult(QList<QString> file_list) {
+void MainWindow::GetAnalyseFolderResult(QList<QString> file_list, QString str_log) {
     this->file_list = file_list;
-    qDebug() << "MainWindow get result counter: ";
-    qDebug() << this->file_list.count();
-    qDebug() << "";
+    // qDebug() << "MainWindow get result counter: ";
+    // qDebug() << this->file_list.count();
+    // qDebug() << "";
     QString status_msg;
     SetStatusBar(QString().sprintf("分析结束，共分析 %d 份文件。", file_list.count()));
+    ui->textBrowserLog->setText(str_log);
     ui->btnAnalysePhotoFolder->setEnabled(true);
 }
 
