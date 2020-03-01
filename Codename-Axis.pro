@@ -13,64 +13,64 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp \
-    FileTraverseThread.cpp \
-    utils/StringUtils.cpp
+           mainwindow.cpp \
+           FileTraverseThread.cpp \
+           utils/StringUtils.cpp
 
 HEADERS  += mainwindow.h \
     FileTraverseThread.h \
     version.h \
-    include/exiv2/asfvideo.hpp \
-    include/exiv2/basicio.hpp \
-    include/exiv2/bigtiffimage.hpp \
-    include/exiv2/bmpimage.hpp \
-    include/exiv2/config.h \
-    include/exiv2/convert.hpp \
-    include/exiv2/cr2image.hpp \
-    include/exiv2/crwimage.hpp \
-    include/exiv2/datasets.hpp \
-    include/exiv2/easyaccess.hpp \
-    include/exiv2/epsimage.hpp \
-    include/exiv2/error.hpp \
-    include/exiv2/exif.hpp \
-    include/exiv2/exiv2.hpp \
-    include/exiv2/futils.hpp \
-    include/exiv2/gifimage.hpp \
-    include/exiv2/http.hpp \
-    include/exiv2/image.hpp \
-    include/exiv2/ini.hpp \
-    include/exiv2/iptc.hpp \
-    include/exiv2/jp2image.hpp \
-    include/exiv2/jpgimage.hpp \
-    include/exiv2/matroskavideo.hpp \
-    include/exiv2/metadatum.hpp \
-    include/exiv2/mrwimage.hpp \
-    include/exiv2/orfimage.hpp \
-    include/exiv2/pgfimage.hpp \
-    include/exiv2/pngimage.hpp \
-    include/exiv2/preview.hpp \
-    include/exiv2/properties.hpp \
-    include/exiv2/psdimage.hpp \
-    include/exiv2/quicktimevideo.hpp \
-    include/exiv2/rafimage.hpp \
-    include/exiv2/riffvideo.hpp \
-    include/exiv2/rw2image.hpp \
-    include/exiv2/rwlock.hpp \
-    include/exiv2/slice.hpp \
-    include/exiv2/ssh.hpp \
-    include/exiv2/tags.hpp \
-    include/exiv2/tgaimage.hpp \
-    include/exiv2/tiffimage.hpp \
-    include/exiv2/types.hpp \
-    include/exiv2/utilsvideo.hpp \
-    include/exiv2/value.hpp \
-    include/exiv2/version.hpp \
-    include/exiv2/webpimage.hpp \
-    include/exiv2/xmp_exiv2.hpp \
-    include/exiv2/xmpsidecar.hpp \
-    include/exiv2.hpp \
-    include/exiv2/exv_conf.h \
-    include/exiv2/exiv2lib_export.h \
+    include/Exiv2/asfvideo.hpp \
+    include/Exiv2/basicio.hpp \
+    include/Exiv2/bigtiffimage.hpp \
+    include/Exiv2/bmpimage.hpp \
+    include/Exiv2/config.h \
+    include/Exiv2/convert.hpp \
+    include/Exiv2/cr2image.hpp \
+    include/Exiv2/crwimage.hpp \
+    include/Exiv2/datasets.hpp \
+    include/Exiv2/easyaccess.hpp \
+    include/Exiv2/epsimage.hpp \
+    include/Exiv2/error.hpp \
+    include/Exiv2/exif.hpp \
+    include/Exiv2/Exiv2.hpp \
+    include/Exiv2/futils.hpp \
+    include/Exiv2/gifimage.hpp \
+    include/Exiv2/http.hpp \
+    include/Exiv2/image.hpp \
+    include/Exiv2/ini.hpp \
+    include/Exiv2/iptc.hpp \
+    include/Exiv2/jp2image.hpp \
+    include/Exiv2/jpgimage.hpp \
+    include/Exiv2/matroskavideo.hpp \
+    include/Exiv2/metadatum.hpp \
+    include/Exiv2/mrwimage.hpp \
+    include/Exiv2/orfimage.hpp \
+    include/Exiv2/pgfimage.hpp \
+    include/Exiv2/pngimage.hpp \
+    include/Exiv2/preview.hpp \
+    include/Exiv2/properties.hpp \
+    include/Exiv2/psdimage.hpp \
+    include/Exiv2/quicktimevideo.hpp \
+    include/Exiv2/rafimage.hpp \
+    include/Exiv2/riffvideo.hpp \
+    include/Exiv2/rw2image.hpp \
+    include/Exiv2/rwlock.hpp \
+    include/Exiv2/slice.hpp \
+    include/Exiv2/ssh.hpp \
+    include/Exiv2/tags.hpp \
+    include/Exiv2/tgaimage.hpp \
+    include/Exiv2/tiffimage.hpp \
+    include/Exiv2/types.hpp \
+    include/Exiv2/utilsvideo.hpp \
+    include/Exiv2/value.hpp \
+    include/Exiv2/version.hpp \
+    include/Exiv2/webpimage.hpp \
+    include/Exiv2/xmp_Exiv2.hpp \
+    include/Exiv2/xmpsidecar.hpp \
+    include/Exiv2.hpp \
+    include/Exiv2/exv_conf.h \
+    include/Exiv2/Exiv2lib_export.h \
     utils/StringUtils.h
 
 FORMS    += mainwindow.ui
@@ -102,11 +102,11 @@ INCLUDEPATH += ./include
 
 LIBS += -lD:/Code/Qt/Codename-Axis/lib/windows-x86/exiv2 \
         -lD:/Code/Qt/Codename-Axis/lib/windows-x86/exiv2-xmp \
--lD:/Code/Qt/Codename-Axis/lib/windows-x86/expat \
--lD:/Code/Qt/Codename-Axis/lib/windows-x86/gmock \
--lD:/Code/Qt/Codename-Axis/lib/windows-x86/gmock_main \
--lD:/Code/Qt/Codename-Axis/lib/windows-x86/gtest \
--lD:/Code/Qt/Codename-Axis/lib/windows-x86/gtest_main \
--lD:/Code/Qt/Codename-Axis/lib/windows-x86/iconv_x86 \
--lD:/Code/Qt/Codename-Axis/lib/windows-x86/zlib \
--lD:/Code/Qt/Codename-Axis/lib/windows-x86/psapi
+        -lD:/Code/Qt/Codename-Axis/lib/windows-x86/expat \
+        -lD:/Code/Qt/Codename-Axis/lib/windows-x86/gmock \
+        -lD:/Code/Qt/Codename-Axis/lib/windows-x86/gmock_main \
+        -lD:/Code/Qt/Codename-Axis/lib/windows-x86/gtest \
+        -lD:/Code/Qt/Codename-Axis/lib/windows-x86/gtest_main \
+        -lD:/Code/Qt/Codename-Axis/lib/windows-x86/iconv_x86 \
+        -lD:/Code/Qt/Codename-Axis/lib/windows-x86/zlib \
+        -lD:/Code/Qt/Codename-Axis/lib/windows-x86/psapi

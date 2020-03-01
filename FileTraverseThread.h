@@ -28,7 +28,7 @@ protected:
     void run();
 
 signals:
-    void isDone(QList<QString>, QString);
+    void isDone(QList<QString>, QList<QString>);
 
 private:
     struct exifModeStruct {

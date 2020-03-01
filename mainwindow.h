@@ -57,7 +57,7 @@ signals:
 public slots:
     void SelectPhotoFolder(const QModelIndex &index);
     void AnalyseSelectedPhotoFolder();
-    void GetAnalyseFolderResult(QList<QString> file_list, QString str_log);
+    void GetAnalyseFolderResult(QList<QString> file_list, QList<QString> file_detail_list);
     void About();
     void StopThread();
 };
