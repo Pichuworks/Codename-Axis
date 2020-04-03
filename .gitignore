@@ -56,3 +56,6 @@ CMakeLists.txt
 /Debug
 /Profile
 /Release
+
+# Database
+*.db
