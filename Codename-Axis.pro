@@ -32,7 +32,8 @@ HEADERS  += Form/AxisMainWindow.h \
     Form/AxisAboutWindow.h \
     Config/GlobalData.h \
     Config/SystemConfig.h \
-    Form/AxisDebugLogWindow.h
+    Form/AxisDebugLogWindow.h \
+    Config/Version.h
 
 FORMS    += Form/AxisMainWindow.ui \
     Form/AxisAboutWindow.ui \

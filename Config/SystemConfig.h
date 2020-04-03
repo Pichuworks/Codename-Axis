@@ -8,6 +8,8 @@
 #include <QString>
 #include <QFontDatabase>
 
+#include "Version.h"
+
 class SystemConfig {
 
 private:

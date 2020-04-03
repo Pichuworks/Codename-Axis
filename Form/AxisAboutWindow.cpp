@@ -1,4 +1,4 @@
-#include "AxisAboutWindow.h"
+﻿#include "AxisAboutWindow.h"
 #include "ui_AxisAboutWindow.h"
 
 
@@ -40,8 +40,9 @@ bool AxisAboutWindow::FillAxisAboutText()
     QString strProjName         = GetSystemConfig().getProjectName();
     QString strWindowTitle      = ui->lblAboutLabel->text() + strProjName;
     QString strProjDesc         = GetSystemConfig().getProjectDescribe();
-    QString strProjVer          = GetSystemConfig().getProjectVersion() + " / Build " + GetSystemConfig().getProjectBuild() + ", from resivion " + GetSystemConfig().getProjectRevision() + " on " + GetSystemConfig().getProjectComplieTime();
-    QString strProjCompiler     = GetSystemConfig().getProjectDistSystemComplier();
+    QString strProjVer          = GetSystemConfig().getProjectVersion() + " / Build " + GetSystemConfig().getProjectBuild() + \
+                                  ", from resivion " + GetSystemConfig().getProjectRevision() + " on " + GetSystemConfig().getProjectComplieTime();
+    QString strProjCompiler     = "Based on " + GetSystemConfig().getProjectDistSystemComplier();
     QString strProjCopyright    = GetSystemConfig().getProjectCopyright();
     QString strProjLink         = "<a style='color: #00BFFF;' href=\"" + GetSystemConfig().getProjectLink() + "\">Fork me from GitHub!";
 

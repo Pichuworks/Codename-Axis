@@ -35,11 +35,11 @@ bool SystemConfig::InitProjectInfo() {
     setProjectCodename("Codename Axis");
     setProjectKey("CodenameAxis");
     setProjectDescribe("基于 Exiv2 的相片数据与统计管理器。");
-    setProjectVersion("Milestone 2");
-    setProjectBuild("XXXX");
-    setProjectRevision("XXXXXXX");
-    setProjectComplieTime("Mar. 29th, '20");
-    setProjectDistSystemComplier("macOS 10.14.6, Qt 5.9.9, Clang 10.0.1");
+    setProjectVersion(DEV_VERSION);
+    setProjectBuild(BUILD_COUNTER);
+    setProjectRevision(COMMIT_INFO);
+    setProjectComplieTime(QString(COMMIT_DATE) + " " + QString(COMMIT_TIME));
+    setProjectDistSystemComplier(DEV_ENV);
     setProjectCopyright("枫光摄影兴趣小组 开发者网络");
     setProjectLink("https://github.com/Pichuworks/Codename-Axis");
 
