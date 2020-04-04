@@ -403,7 +403,7 @@
               <item row="0" column="0">
                <widget class="QTabWidget" name="tabScanView">
                 <property name="currentIndex">
-                 <number>0</number>
+                 <number>1</number>
                 </property>
                 <widget class="QWidget" name="tabScanLog">
                  <attribute name="title">
@@ -504,7 +504,14 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QComboBox" name="cbScanResultSelect"/>
+                      <widget class="QComboBox" name="cbScanResultSelect">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                      </widget>
                      </item>
                      <item>
                       <widget class="QLabel" name="lblFilterLabel">
@@ -655,7 +662,7 @@
                           <number>0</number>
                          </property>
                          <property name="topMargin">
-                          <number>0</number>
+                          <number>2</number>
                          </property>
                          <property name="rightMargin">
                           <number>0</number>
@@ -664,7 +671,7 @@
                           <number>0</number>
                          </property>
                          <item row="0" column="0">
-                          <widget class="QTableWidget" name="tableWidget"/>
+                          <widget class="QTableWidget" name="tableResultStat"/>
                          </item>
                         </layout>
                        </widget>

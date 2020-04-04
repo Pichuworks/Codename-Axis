@@ -14,9 +14,9 @@ extern QMutex scan_counter_mutex;
 extern int scan_counter;
 extern QMutex analyse_counter_mutex;
 extern int analyse_counter;
-extern QList<QString> exif_mode;
+extern QList<QString> exif_mode_table;
 extern QList<ExivRaw> current_exif_raw_data;
-
+extern QString current_scan_task_id;
 void InitGlobalVar()
 {
     // 感觉很简陋但是先这么着吧
@@ -25,10 +25,90 @@ void InitGlobalVar()
     analyse_result = QQueue<QString>();
     scan_counter = 0;
     analyse_counter = 0;
-    exif_mode = QList<QString>();
+    exif_mode_table = QList<QString>();
     current_exif_raw_data = QList<ExivRaw>();
+    current_scan_task_id = "";
 }
 
+void ExivRaw::setTask_id(QString str) {
+    task_id = str;
+}
+
+void ExivRaw::setFile_name(QString str) {
+    file_name = str;
+}
+
+void ExivRaw::setFile_path(QString str) {
+    file_path = str;
+}
+
+void ExivRaw::setTitle(QString str) {
+    title = str;
+}
+
+void ExivRaw::setManufacturer(QString str) {
+    manufacturer = str;
+}
+
+void ExivRaw::setCamera_model(QString str) {
+    camera_model = str;
+}
+
+void ExivRaw::setLens_model(QString str) {
+    lens_model = str;
+}
+
+void ExivRaw::setShooting_datetime(QString str) {
+    shooting_datetime = str;
+}
+
+void ExivRaw::setPhyical_focus_length(QString str) {
+    phyical_focus_length = str;
+}
+
+void ExivRaw::setEquivalent_focus_length(QString str) {
+    equivalent_focus_length = str;
+}
+
+void ExivRaw::setIso(QString str) {
+    iso = str;
+}
+
+void ExivRaw::setAperture(QString str) {
+    aperture = str;
+}
+
+void ExivRaw::setShutter_speed(QString str) {
+    shutter_speed = str;
+}
+
+void ExivRaw::setShutter_counter(QString str) {
+    shutter_counter = str;
+}
+
+void ExivRaw::setExposure_compensation(QString str) {
+    exposure_compensation = str;
+}
+
+void ExivRaw::setFlash_status(QString str) {
+    flash_status = str;
+}
+
+void ExivRaw::setWhite_balance(QString str) {
+    white_balance = str;
+}
+
+void ExivRaw::setShooting_mode(QString str) {
+    shooting_mode = str;
+}
+
+void ExivRaw::setMetering_mode(QString str) {
+    metering_mode = str;
+}
+
+void ExivRaw::setComment(QString str) {
+    comment = str;
+}
 
 QString ExivRaw::getFile_name()
 {

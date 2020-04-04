@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network
+QT       += core gui network sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -26,7 +26,8 @@ SOURCES += main.cpp\
     Form/AxisDebugLogWindow.cpp \
     Logic/FileScanner.cpp \
     Logic/DatabaseManager.cpp \
-    Utils/StringUtils.cpp
+    Utils/StringUtils.cpp \
+    Utils/StringExpr.cpp
 
 HEADERS  += Form/AxisMainWindow.h \
     Form/head.h \
@@ -39,7 +40,8 @@ HEADERS  += Form/AxisMainWindow.h \
     Config/Version.h \
     Logic/FileScanner.h \
     Logic/DatabaseManager.h \
-    Utils/StringUtils.h
+    Utils/StringUtils.h \
+    Utils/StringExpr.h
 
 FORMS    += Form/AxisMainWindow.ui \
     Form/AxisAboutWindow.ui \

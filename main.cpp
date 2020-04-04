@@ -1,5 +1,7 @@
 ﻿#include <QApplication>
+#include <QSqlDatabase>
 #include "Config/GlobalData.h"
+#include "Config/SystemConfig.h"
 #include "Form/quiwidget.h"
 #include "Logic/AxisInit.h"
 #include "Form/AxisMainWindow.h"
@@ -15,14 +17,22 @@ QMutex scan_counter_mutex;
 int scan_counter = 0;
 QMutex analyse_counter_mutex;
 int analyse_counter = 0;
-QList<QString> exif_mode;
+QList<QString> exif_mode_table;
 QList<ExivRaw> current_exif_raw_data;
+QString current_scan_task_id;
+// 很扯淡的东西结束
+
+QSqlDatabase global_sqlite_database;
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
 
     // init
     InitGlobalVar();
+    if(!InitDatabase()) {
+        qDebug() << "fuck! no fucking database";
+        exit(-1);
+    }
 
     a.setWindowIcon(QIcon(":/main.ico"));
 

@@ -165,3 +165,26 @@ void SystemConfig::setMainwindow_font_path(const QString &value)
 {
     mainwindow_font_path = value;
 }
+
+extern QSqlDatabase global_sqlite_database;
+bool InitDatabase()
+{
+    bool ret = true;
+
+    global_sqlite_database = QSqlDatabase::addDatabase("QSQLITE");
+    global_sqlite_database.setDatabaseName("./database.db");
+    global_sqlite_database.open();
+    if(!global_sqlite_database.isOpen()) {
+        ret = false;
+        qDebug() << "fuck! no database";
+    }
+    else if(global_sqlite_database.isOpenError()) {
+        ret = false;
+        qDebug() << "fuck! database error";
+    }
+    else {
+        qDebug() << "you open the fucking database";
+    }
+
+    return ret;
+}

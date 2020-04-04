@@ -69,6 +69,27 @@ public:
 
     }
 
+    void setTask_id(QString str);
+    void setFile_name(QString str);
+    void setFile_path(QString str);
+    void setTitle(QString str);
+    void setManufacturer(QString str);
+    void setCamera_model(QString str);
+    void setLens_model(QString str);
+    void setShooting_datetime(QString str);
+    void setPhyical_focus_length(QString str);
+    void setEquivalent_focus_length(QString str);
+    void setIso(QString str);
+    void setAperture(QString str);
+    void setShutter_speed(QString str);
+    void setShutter_counter(QString str);
+    void setExposure_compensation(QString str);
+    void setFlash_status(QString str);
+    void setWhite_balance(QString str);
+    void setShooting_mode(QString str);
+    void setMetering_mode(QString str);
+    void setComment(QString str);
+
     QString getTask_id();
     QString getFile_name();
     QString getFile_path();

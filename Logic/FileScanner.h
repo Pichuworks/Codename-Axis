@@ -22,10 +22,12 @@
 #include <QRunnable>
 #include <QThreadPool>
 #include <QString>
+#include <QSqlQuery>
 
 #include "Lib/include/exiv2.hpp"
 #include "Utils/StringUtils.h"
 #include "Config/GlobalData.h"
+#include "Utils/StringExpr.h"
 
 #define FUCK_THREADS 16
 

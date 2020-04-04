@@ -6,6 +6,7 @@
 #endif
 
 #include <QString>
+#include <QSqlDatabase>
 #include <QFontDatabase>
 
 #include "Version.h"
@@ -78,5 +79,6 @@ public:
 
 };
 
+bool InitDatabase();
 
 #endif // SYSTEMCONFIG_H

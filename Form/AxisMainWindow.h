@@ -11,6 +11,8 @@
 #include <QToolButton>
 #include <QFontDatabase>
 #include <QDebug>
+#include <QUuid>
+#include <QDateTime>
 
 #include "AxisAboutWindow.h"
 #include "AxisDebugLogWindow.h"
@@ -52,6 +54,7 @@ private:
     bool SetIconFont();
 
     void DoScanProcess();
+    void DoStatProcess();
 
 private slots:
     void RibbonBtnClick();
@@ -59,6 +62,7 @@ private slots:
     void MenuItemAboutAxisClick();
     void BtnBrowsePathClick();
     void BtnScanClick();
+    void BtnExportResultClick();
 
 public slots:
     void ScanLogAppend(QString logstr);

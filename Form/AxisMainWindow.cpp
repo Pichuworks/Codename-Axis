@@ -33,7 +33,7 @@ bool AxisMainWindow::InitAxisMainWindow() {
 bool AxisMainWindow::SetSkinHotfix() {
     bool ret = true;
     QStringList qss;
-    qss.append("QTabWidget::pane{border:-1px;top:-2px;left:1px;}"); // 消除 tab 边框
+    qss.append("QTabWidget::pane{border:-1px;top:-2px;left:1px;}");
     this->setStyleSheet(qss.join(""));
     return ret;
 }
@@ -170,6 +170,7 @@ bool AxisMainWindow::InitSignalSlot() {
 
     connect(ui->btnBrowsePath, SIGNAL(clicked(bool)), this, SLOT(BtnBrowsePathClick()));
     connect(ui->btnScan, SIGNAL(clicked(bool)), this, SLOT(BtnScanClick()));
+    connect(ui->btnExportResult, SIGNAL(clicked(bool)), this, SLOT(BtnExportResultClick()));
     return ret;
 }
 
@@ -246,6 +247,11 @@ void AxisMainWindow::BtnScanClick() {
     DoScanProcess();
 }
 
+void AxisMainWindow::BtnExportResultClick()
+{
+    DoStatProcess();
+}
+
 void AxisMainWindow::ScanLogAppend(QString logstr)
 {
     ui->tbLScanLog->append(logstr);
@@ -263,16 +269,36 @@ extern QMutex scan_counter_mutex;
 extern int scan_counter;
 extern QMutex analyse_counter_mutex;
 extern int analyse_counter;
-extern QList<QString> exif_mode;
+extern QList<QString> exif_mode_table;
 extern QList<ExivRaw> current_exif_raw_data;
+extern QString current_scan_task_id;
+
+extern QSqlDatabase global_sqlite_database;
 
 void AxisMainWindow::DoScanProcess() {
 
     InitGlobalVar();
 
+    ui->tabScanView->setCurrentIndex(0);
+    ui->tbLScanLog->setText("");
+    ui->btnScan->setDisabled(true);
+
     ScanLogAppend("开始扫描目标路径\n");
 
-    exif_mode << "Exif.Image.Make"
+    current_scan_task_id = QUuid::createUuid().toString().remove("{").remove("}").remove("-");
+    QDateTime scan_datetime = QDateTime::currentDateTime();
+    QString scan_datestr = scan_datetime.toString("yyyy-MM-dd hh:mm:ss");
+    QSqlQuery query(global_sqlite_database);
+    QString sql = "insert into EXIF_TASK(task_id, task_datetime, task_name) values";
+    sql.append("('"); sql.append(current_scan_task_id); sql.append("', ");
+    sql.append("'"); sql.append(scan_datestr); sql.append("', ");
+    sql.append("'"); sql.append("debug_task"); sql.append("')");
+    if(!query.exec(sql)) {
+        qDebug() << "fucking task error";
+    }
+
+
+    exif_mode_table << "Exif.Image.Make"
               << "Exif.Image.Model"
               << "Exif.Photo.LensModel"
               << "Exif.Photo.FocalLength"
@@ -295,4 +321,161 @@ void AxisMainWindow::DoScanProcess() {
             analyser[i].run();
         }
     }
+
+    ui->btnScan->setEnabled(true);
+    ui->tabScanView->setCurrentIndex(1);
+    DoStatProcess();
+
+}
+
+void AxisMainWindow::DoStatProcess() {
+    // 先写一个 work 的，明天优化
+    QMap<QString, QString> manufacturer_map;
+    QMap<QString, QString> camera_model_map;
+    QMap<QString, QString> phyical_focus_length_map;
+    QMap<QString, QString> aperture_map;
+    QMap<QString, QString> iso_map;
+    QMap<QString, QString> shutter_speed_map;
+    QString sqlstr;
+
+    // disp
+    ui->lblResultStatus->setText(QString::number(analyse_counter));
+    ui->tableResultStat->setColumnCount(2);
+    ui->tableResultStat->verticalHeader()->setVisible(false);
+    ui->tableResultStat->horizontalHeader()->setVisible(false);
+    ui->tableResultStat->horizontalHeader()->setStretchLastSection(true);
+    ui->tableResultStat->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    QSqlQuery query(global_sqlite_database);
+
+    sqlstr = "SELECT Count(1) FROM EXIF_RAW";
+    query.prepare(sqlstr);
+    query.exec();
+    while(query.next()) {
+        ui->lblResultStatus->setText(query.value(0).toString());
+    }
+
+    int rowcount = ui->tableResultStat->rowCount();
+    ui->tableResultStat->insertRow(rowcount);
+    ui->tableResultStat->setItem(rowcount, 0, new QTableWidgetItem("制造商"));
+    ui->tableResultStat->setItem(rowcount, 1, new QTableWidgetItem(""));
+    sqlstr = "SELECT manufacturer, Count(*) FROM EXIF_RAW GROUP BY manufacturer";
+    query.prepare(sqlstr);
+    query.exec();
+    while(query.next()) {
+        if(query.value(0).toString().trimmed() != "") {
+            rowcount = ui->tableResultStat->rowCount();
+            ui->tableResultStat->insertRow(rowcount);
+            ui->tableResultStat->setItem(rowcount, 0, new QTableWidgetItem(query.value(0).toString()));
+            ui->tableResultStat->setItem(rowcount, 1, new QTableWidgetItem(query.value(1).toString()));
+            manufacturer_map[query.value(0).toString()] = query.value(1).toString();
+        }
+    }
+
+    rowcount = ui->tableResultStat->rowCount();
+    ui->tableResultStat->insertRow(rowcount);
+    ui->tableResultStat->setItem(rowcount, 0, new QTableWidgetItem(""));
+    ui->tableResultStat->setItem(rowcount, 1, new QTableWidgetItem(""));
+    rowcount = ui->tableResultStat->rowCount();
+    ui->tableResultStat->insertRow(rowcount);
+    ui->tableResultStat->setItem(rowcount, 0, new QTableWidgetItem("相机型号"));
+    ui->tableResultStat->setItem(rowcount, 1, new QTableWidgetItem(""));
+    sqlstr = "SELECT camera_model, Count(*) FROM EXIF_RAW GROUP BY camera_model";
+    query.prepare(sqlstr);
+    query.exec();
+    while(query.next()) {
+        if(query.value(0).toString().trimmed() != "") {
+            rowcount = ui->tableResultStat->rowCount();
+            ui->tableResultStat->insertRow(rowcount);
+            ui->tableResultStat->setItem(rowcount, 0, new QTableWidgetItem(query.value(0).toString()));
+            ui->tableResultStat->setItem(rowcount, 1, new QTableWidgetItem(query.value(1).toString()));
+            camera_model_map[query.value(0).toString()] = query.value(1).toString();
+        }
+    }
+
+    rowcount = ui->tableResultStat->rowCount();
+    ui->tableResultStat->insertRow(rowcount);
+    ui->tableResultStat->setItem(rowcount, 0, new QTableWidgetItem(""));
+    ui->tableResultStat->setItem(rowcount, 1, new QTableWidgetItem(""));
+    rowcount = ui->tableResultStat->rowCount();
+    ui->tableResultStat->insertRow(rowcount);
+    ui->tableResultStat->setItem(rowcount, 0, new QTableWidgetItem("物理焦距"));
+    ui->tableResultStat->setItem(rowcount, 1, new QTableWidgetItem(""));
+    sqlstr = "SELECT phyical_focus_length, Count(*) FROM EXIF_RAW GROUP BY phyical_focus_length";
+    query.prepare(sqlstr);
+    query.exec();
+    while(query.next()) {
+        if(query.value(0).toString().trimmed() != "") {
+            rowcount = ui->tableResultStat->rowCount();
+            ui->tableResultStat->insertRow(rowcount);
+            ui->tableResultStat->setItem(rowcount, 0, new QTableWidgetItem(query.value(0).toString()));
+            ui->tableResultStat->setItem(rowcount, 1, new QTableWidgetItem(query.value(1).toString()));
+            phyical_focus_length_map[query.value(0).toString()] = query.value(1).toString();
+        }
+    }
+
+    rowcount = ui->tableResultStat->rowCount();
+    ui->tableResultStat->insertRow(rowcount);
+    ui->tableResultStat->setItem(rowcount, 0, new QTableWidgetItem(""));
+    ui->tableResultStat->setItem(rowcount, 1, new QTableWidgetItem(""));
+    rowcount = ui->tableResultStat->rowCount();
+    ui->tableResultStat->insertRow(rowcount);
+    ui->tableResultStat->setItem(rowcount, 0, new QTableWidgetItem("光圈"));
+    ui->tableResultStat->setItem(rowcount, 1, new QTableWidgetItem(""));
+    sqlstr = "SELECT aperture, Count(*) FROM EXIF_RAW GROUP BY aperture";
+    query.prepare(sqlstr);
+    query.exec();
+    while(query.next()) {
+        if(query.value(0).toString().trimmed() != "") {
+            rowcount = ui->tableResultStat->rowCount();
+            ui->tableResultStat->insertRow(rowcount);
+            ui->tableResultStat->setItem(rowcount, 0, new QTableWidgetItem(query.value(0).toString()));
+            ui->tableResultStat->setItem(rowcount, 1, new QTableWidgetItem(query.value(1).toString()));
+            aperture_map[query.value(0).toString()] = query.value(1).toString();
+        }
+    }
+
+    rowcount = ui->tableResultStat->rowCount();
+    ui->tableResultStat->insertRow(rowcount);
+    ui->tableResultStat->setItem(rowcount, 0, new QTableWidgetItem(""));
+    ui->tableResultStat->setItem(rowcount, 1, new QTableWidgetItem(""));
+    rowcount = ui->tableResultStat->rowCount();
+    ui->tableResultStat->insertRow(rowcount);
+    ui->tableResultStat->setItem(rowcount, 0, new QTableWidgetItem("快门速度"));
+    ui->tableResultStat->setItem(rowcount, 1, new QTableWidgetItem(""));
+    sqlstr = "SELECT shutter_speed, Count(*) FROM EXIF_RAW GROUP BY shutter_speed";
+    query.prepare(sqlstr);
+    query.exec();
+    while(query.next()) {
+        if(query.value(0).toString().trimmed() != "") {
+            rowcount = ui->tableResultStat->rowCount();
+            ui->tableResultStat->insertRow(rowcount);
+            ui->tableResultStat->setItem(rowcount, 0, new QTableWidgetItem(query.value(0).toString()));
+            ui->tableResultStat->setItem(rowcount, 1, new QTableWidgetItem(query.value(1).toString()));
+            shutter_speed_map[query.value(0).toString()] = query.value(1).toString();
+        }
+    }
+
+    rowcount = ui->tableResultStat->rowCount();
+    ui->tableResultStat->insertRow(rowcount);
+    ui->tableResultStat->setItem(rowcount, 0, new QTableWidgetItem(""));
+    ui->tableResultStat->setItem(rowcount, 1, new QTableWidgetItem(""));
+    rowcount = ui->tableResultStat->rowCount();
+    ui->tableResultStat->insertRow(rowcount);
+    ui->tableResultStat->setItem(rowcount, 0, new QTableWidgetItem("ISO"));
+    ui->tableResultStat->setItem(rowcount, 1, new QTableWidgetItem(""));
+    sqlstr = "SELECT iso, Count(*) FROM EXIF_RAW GROUP BY iso";
+    query.prepare(sqlstr);
+    query.exec();
+    while(query.next()) {
+        if(query.value(0).toString().trimmed() != "") {
+            rowcount = ui->tableResultStat->rowCount();
+            ui->tableResultStat->insertRow(rowcount);
+            ui->tableResultStat->setItem(rowcount, 0, new QTableWidgetItem(query.value(0).toString()));
+            ui->tableResultStat->setItem(rowcount, 1, new QTableWidgetItem(query.value(1).toString()));
+            iso_map[query.value(0).toString()] = query.value(1).toString();
+        }
+    }
+
+    ui->tableResultStat->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->tableResultStat->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }

@@ -16,13 +16,13 @@
                                                                          
 #define DEV_ENV        "Qt 5.6.3 (MSVC 2015, 32bit)"                     
                                                                          
-#define BUILD_COUNTER  "138"                                 
+#define BUILD_COUNTER  "195"                                 
                                                                          
 #define COMMIT_DATE    "2020-04-04"                                   
                                                                          
-#define COMMIT_TIME    "02:31:40"                                   
+#define COMMIT_TIME    "21:30:42"                                   
                                                                          
-#define COMMIT_INFO    "b069a4c"                                   
+#define COMMIT_INFO    "df959e7"                                   
                                                                          
 #define COMMIT_BRANCH  "master"                                 
                                                                          
