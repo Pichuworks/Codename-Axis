@@ -358,7 +358,7 @@ void AxisMainWindow::DoStatProcess() {
     ui->tableResultStat->insertRow(rowcount);
     ui->tableResultStat->setItem(rowcount, 0, new QTableWidgetItem("制造商"));
     ui->tableResultStat->setItem(rowcount, 1, new QTableWidgetItem(""));
-    sqlstr = "SELECT manufacturer, Count(*) FROM EXIF_RAW GROUP BY manufacturer";
+    sqlstr = "SELECT manufacturer, Count(*) AS counter FROM EXIF_RAW GROUP BY manufacturer ORDER BY counter DESC";
     query.prepare(sqlstr);
     query.exec();
     while(query.next()) {
@@ -379,7 +379,7 @@ void AxisMainWindow::DoStatProcess() {
     ui->tableResultStat->insertRow(rowcount);
     ui->tableResultStat->setItem(rowcount, 0, new QTableWidgetItem("相机型号"));
     ui->tableResultStat->setItem(rowcount, 1, new QTableWidgetItem(""));
-    sqlstr = "SELECT camera_model, Count(*) FROM EXIF_RAW GROUP BY camera_model";
+    sqlstr = "SELECT camera_model, Count(*) AS counter FROM EXIF_RAW GROUP BY camera_model ORDER BY counter DESC";
     query.prepare(sqlstr);
     query.exec();
     while(query.next()) {
@@ -400,7 +400,7 @@ void AxisMainWindow::DoStatProcess() {
     ui->tableResultStat->insertRow(rowcount);
     ui->tableResultStat->setItem(rowcount, 0, new QTableWidgetItem("物理焦距"));
     ui->tableResultStat->setItem(rowcount, 1, new QTableWidgetItem(""));
-    sqlstr = "SELECT phyical_focus_length, Count(*) FROM EXIF_RAW GROUP BY phyical_focus_length";
+    sqlstr = "SELECT phyical_focus_length, Count(*) AS counter FROM EXIF_RAW GROUP BY phyical_focus_length ORDER BY counter DESC";
     query.prepare(sqlstr);
     query.exec();
     while(query.next()) {
@@ -421,7 +421,7 @@ void AxisMainWindow::DoStatProcess() {
     ui->tableResultStat->insertRow(rowcount);
     ui->tableResultStat->setItem(rowcount, 0, new QTableWidgetItem("光圈"));
     ui->tableResultStat->setItem(rowcount, 1, new QTableWidgetItem(""));
-    sqlstr = "SELECT aperture, Count(*) FROM EXIF_RAW GROUP BY aperture";
+    sqlstr = "SELECT aperture, Count(*) AS counter FROM EXIF_RAW GROUP BY aperture ORDER BY counter DESC";
     query.prepare(sqlstr);
     query.exec();
     while(query.next()) {
@@ -442,7 +442,7 @@ void AxisMainWindow::DoStatProcess() {
     ui->tableResultStat->insertRow(rowcount);
     ui->tableResultStat->setItem(rowcount, 0, new QTableWidgetItem("快门速度"));
     ui->tableResultStat->setItem(rowcount, 1, new QTableWidgetItem(""));
-    sqlstr = "SELECT shutter_speed, Count(*) FROM EXIF_RAW GROUP BY shutter_speed";
+    sqlstr = "SELECT shutter_speed, Count(*) AS counter FROM EXIF_RAW GROUP BY shutter_speed ORDER BY counter DESC";
     query.prepare(sqlstr);
     query.exec();
     while(query.next()) {
@@ -463,7 +463,7 @@ void AxisMainWindow::DoStatProcess() {
     ui->tableResultStat->insertRow(rowcount);
     ui->tableResultStat->setItem(rowcount, 0, new QTableWidgetItem("ISO"));
     ui->tableResultStat->setItem(rowcount, 1, new QTableWidgetItem(""));
-    sqlstr = "SELECT iso, Count(*) FROM EXIF_RAW GROUP BY iso";
+    sqlstr = "SELECT iso, Count(*) AS counter FROM EXIF_RAW GROUP BY iso ORDER BY counter DESC";
     query.prepare(sqlstr);
     query.exec();
     while(query.next()) {
