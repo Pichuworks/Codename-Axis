@@ -403,7 +403,7 @@
               <item row="0" column="0">
                <widget class="QTabWidget" name="tabScanView">
                 <property name="currentIndex">
-                 <number>1</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="tabScanLog">
                  <attribute name="title">
@@ -495,6 +495,16 @@
                         </size>
                        </property>
                       </spacer>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="lblScanResultSelect">
+                       <property name="text">
+                        <string> 查询结果</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QComboBox" name="cbScanResultSelect"/>
                      </item>
                      <item>
                       <widget class="QLabel" name="lblFilterLabel">
@@ -696,7 +706,7 @@
               <item>
                <widget class="QLabel" name="lblFolderPath">
                 <property name="text">
-                 <string>工作路径</string>
+                 <string>目标路径</string>
                 </property>
                </widget>
               </item>

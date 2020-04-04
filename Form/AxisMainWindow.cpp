@@ -140,7 +140,7 @@ bool AxisMainWindow::SetResultView()
     QList<QToolButton *> tbtns = ui->widgetResultViewSwitcher->findChildren<QToolButton *>();
     foreach (QToolButton *btn, tbtns) {
         btn->setCheckable(true);
-        connect(btn, SIGNAL(clicked()), this, SLOT(ResultViewBtnClick()));
+        connect(btn, SIGNAL(clicked()), this, SLOT(BtnResultViewClick()));
     }
 
     ui->btnTableView->setChecked(true);
@@ -166,7 +166,10 @@ bool AxisMainWindow::SetIconFont()
 
 bool AxisMainWindow::InitSignalSlot() {
     bool ret = true;
-    connect(ui->actionAboutCodenameAxis, SIGNAL(triggered(bool)), this, SLOT(AboutMenuItemClick()));
+    connect(ui->actionAboutCodenameAxis, SIGNAL(triggered(bool)), this, SLOT(MenuItemAboutAxisClick()));
+
+    connect(ui->btnBrowsePath, SIGNAL(clicked(bool)), this, SLOT(BtnBrowsePathClick()));
+    connect(ui->btnScan, SIGNAL(clicked(bool)), this, SLOT(BtnScanClick()));
     return ret;
 }
 
@@ -205,7 +208,7 @@ void AxisMainWindow::RibbonBtnClick() {
     }
 }
 
-void AxisMainWindow::ResultViewBtnClick()
+void AxisMainWindow::BtnResultViewClick()
 {
     QToolButton *b = (QToolButton *)sender();
     QString text = b->text();
@@ -223,7 +226,73 @@ void AxisMainWindow::ResultViewBtnClick()
     }
 }
 
-void AxisMainWindow::AboutMenuItemClick() {
+void AxisMainWindow::MenuItemAboutAxisClick() {
     AxisAboutWindow axisAboutWindow;
     axisAboutWindow.exec();
+}
+
+void AxisMainWindow::BtnBrowsePathClick() {
+    target_folder_path = QFileDialog::getExistingDirectory(this, "选择目标路径");
+    if (target_folder_path.isEmpty()) {
+        return;
+    }
+    else {
+        target_folder_path += "/";
+        ui->tbFolderPath->setText(target_folder_path);
+    }
+}
+
+void AxisMainWindow::BtnScanClick() {
+    DoScanProcess();
+}
+
+void AxisMainWindow::ScanLogAppend(QString logstr)
+{
+    ui->tbLScanLog->append(logstr);
+}
+
+
+// Scan Process
+extern QMutex folder_mutex;
+extern QQueue<QString> folder_queue;
+extern QMutex file_mutex;
+extern QQueue<QString> file_queue;
+extern QMutex analyse_lock;
+extern QList<QString> analyse_result;
+extern QMutex scan_counter_mutex;
+extern int scan_counter;
+extern QMutex analyse_counter_mutex;
+extern int analyse_counter;
+extern QList<QString> exif_mode;
+extern QList<ExivRaw> current_exif_raw_data;
+
+void AxisMainWindow::DoScanProcess() {
+
+    InitGlobalVar();
+
+    ScanLogAppend("开始扫描目标路径\n");
+
+    exif_mode << "Exif.Image.Make"
+              << "Exif.Image.Model"
+              << "Exif.Photo.LensModel"
+              << "Exif.Photo.FocalLength"
+              << "Exif.Photo.FNumber"
+              << "Exif.Photo.ExposureTime"
+              << "Exif.Photo.ISOSpeedRatings"
+              << "Exif.Photo.ExposureBiasValue"
+              << "Exif.Photo.FocalLengthIn35mmFilm"
+              << "Exif.Photo.DateTimeOriginal";
+
+    folder_queue.enqueue(target_folder_path);
+
+    ScanThread scanner[FUCK_THREADS];
+    AnalyseThread analyser[FUCK_THREADS];
+
+    while(!folder_queue.isEmpty() || !file_queue.isEmpty()) {
+        for(int i = 0; i < FUCK_THREADS; i++) {
+            connect(&analyser[i],SIGNAL(ScanLogAppend(QString)),this,SLOT(ScanLogAppend(QString)));
+            scanner[i].run();
+            analyser[i].run();
+        }
+    }
 }

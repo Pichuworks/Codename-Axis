@@ -14,6 +14,7 @@
 
 #include "AxisAboutWindow.h"
 #include "AxisDebugLogWindow.h"
+#include "Logic/FileScanner.h"
 
 namespace Ui {
 class AxisMainWindow;
@@ -37,6 +38,8 @@ private:
     enum tab_enum {TAB_STAT, TAB_EQUIP, TAB_APPEAR, TAB_SHEET, TAB_SETTING, TAB_LOG};
     enum result_view_enum {RESULT_TABLE_VIEW, RESULT_CHART_VIEW};
 
+    QString target_folder_path;
+
     bool InitAxisMainWindow();
     bool InitRibbonWidget();
     bool InitSignalSlot();
@@ -48,10 +51,17 @@ private:
     bool SetResultView();
     bool SetIconFont();
 
+    void DoScanProcess();
+
 private slots:
     void RibbonBtnClick();
-    void ResultViewBtnClick();
-    void AboutMenuItemClick();
+    void BtnResultViewClick();
+    void MenuItemAboutAxisClick();
+    void BtnBrowsePathClick();
+    void BtnScanClick();
+
+public slots:
+    void ScanLogAppend(QString logstr);
 
 };
 

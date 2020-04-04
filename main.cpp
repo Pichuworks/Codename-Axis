@@ -1,14 +1,29 @@
-﻿#include "Config/GlobalData.h"
+﻿#include <QApplication>
+#include "Config/GlobalData.h"
 #include "Form/quiwidget.h"
 #include "Logic/AxisInit.h"
-
 #include "Form/AxisMainWindow.h"
 
-#include <QApplication>
+// 感觉写在 main 里很扯淡但是先这么着吧
+QMutex folder_mutex;
+QQueue<QString> folder_queue;
+QMutex file_mutex;
+QQueue<QString> file_queue;
+QMutex analyse_lock;
+QList<QString> analyse_result;
+QMutex scan_counter_mutex;
+int scan_counter = 0;
+QMutex analyse_counter_mutex;
+int analyse_counter = 0;
+QList<QString> exif_mode;
+QList<ExivRaw> current_exif_raw_data;
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
+
+    // init
+    InitGlobalVar();
+
     a.setWindowIcon(QIcon(":/main.ico"));
 
     int font_id = QFontDatabase::addApplicationFont(GetSystemConfig().getMainwindow_font_path());
@@ -43,3 +58,4 @@ int main(int argc, char *argv[])
 
     return a.exec();
 }
+

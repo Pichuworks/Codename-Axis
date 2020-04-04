@@ -51,6 +51,10 @@ echo BUILD COUNTER %BUILD_COUNTER%
 @echo #ifndef COMMIT_INFO_H                                                    >> %COMMIT_INFO_FILE%
 @echo #define COMMIT_INFO_H                                                    >> %COMMIT_INFO_FILE%
 @echo[                                                                         >> %COMMIT_INFO_FILE%
+@echo #if _MSC_VER >= 1600                                                     >> %COMMIT_INFO_FILE%
+@echo #pragma execution_character_set("utf-8")                                 >> %COMMIT_INFO_FILE%
+@echo #endif                                                                   >> %COMMIT_INFO_FILE%
+@echo[                                                                         >> %COMMIT_INFO_FILE%
 @echo #define DEV_VERSION    "Milestone 2"                                     >> %COMMIT_INFO_FILE%
 @echo[                                                                         >> %COMMIT_INFO_FILE%
 @echo #define DEV_ENV        "Qt 5.6.3 (MSVC 2015, 32bit)"                     >> %COMMIT_INFO_FILE%
