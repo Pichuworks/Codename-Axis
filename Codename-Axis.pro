@@ -64,3 +64,14 @@ LIBS += -lD:/Code/Qt/ThreadPoolFileScanner/lib/exiv2 \
         -lD:/Code/Qt/ThreadPoolFileScanner/lib/zlib \
         -lD:/Code/Qt/ThreadPoolFileScanner/lib/psapi
 
+win32 {
+    QMAKE_LFLAGS_WINDOWS = /SUBSYSTEM:WINDOWS,5.01
+    QMAKE_LFLAGS_CONSOLE = /SUBSYSTEM:CONSOLE,5.01
+
+    DEFINES += _ATL_XP_TARGETING
+    QMAKE_CFLAGS += /D_USING_V140_SDK71_
+    QMAKE_CXXFLAGS += /D_USING_V140_SDK71
+    LIBS *= -L"%ProgramFiles(x86)%/Microsoft SDKs/Windows/7.1A/Lib"
+    INCLUDEPATH += "%ProgramFiles(x86)%/Microsoft SDKs/Windows/7.1A/Include"
+    QMAKE_TARGET_OS = xp
+}

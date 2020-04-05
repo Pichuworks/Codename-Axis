@@ -14,7 +14,6 @@ extern QMutex scan_counter_mutex;
 extern int scan_counter;
 extern QMutex analyse_counter_mutex;
 extern int analyse_counter;
-extern QList<QString> exif_mode_table;
 extern QList<ExivRaw> current_exif_raw_data;
 extern QString current_scan_task_id;
 void InitGlobalVar()
@@ -25,9 +24,25 @@ void InitGlobalVar()
     analyse_result = QQueue<QString>();
     scan_counter = 0;
     analyse_counter = 0;
-    exif_mode_table = QList<QString>();
     current_exif_raw_data = QList<ExivRaw>();
     current_scan_task_id = "";
+}
+
+extern QList<QString> exif_mode_table;
+void InitScanParameter() {
+    exif_mode_table << "Exif.Image.Make"
+              << "Exif.Image.Model"
+              << "Exif.Photo.LensModel"
+              << "Exif.Photo.FocalLength"
+              << "Exif.Photo.FNumber"
+              << "Exif.Photo.ExposureTime"
+              << "Exif.Photo.ISOSpeedRatings"
+              << "Exif.Photo.ExposureBiasValue"
+              << "Exif.Photo.FocalLengthIn35mmFilm"
+              << "Exif.Photo.DateTimeOriginal"
+                 // 20200405 update
+              << "Exif.Photo.WhiteBalance"
+              << "Exif.Photo.MeteringMode";
 }
 
 void ExivRaw::setTask_id(QString str) {

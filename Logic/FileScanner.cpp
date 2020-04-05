@@ -13,6 +13,61 @@ extern int analyse_counter;
 extern QList<QString> exif_mode_table;
 extern QList<ExivRaw> current_exif_raw_data;
 
+void CurrentScanThread::run() {
+    qDebug() << "current scan start!";
+    status_saved = false;
+    Start();
+}
+
+void CurrentScanThread::Start() {
+    QString logstr;
+    logstr = "扫描开始时间：" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+    emit ScanLogAppend(logstr);
+
+    ScanThread scanner[FUCK_THREADS];
+    AnalyseThread analyser[FUCK_THREADS];
+
+    while(!folder_queue.isEmpty() || !file_queue.isEmpty()) {
+        for(int i = 0; i < FUCK_THREADS; i++) {
+            connect(&scanner[i], SIGNAL(ScanLogAppend(QString)), this, SLOT(ScanLogAppendForward(QString)));
+            connect(&scanner[i], SIGNAL(ScanLogClear()), this, SLOT(ScanLogClearForward()));
+            connect(&analyser[i], SIGNAL(ScanLogAppend(QString)), this, SLOT(ScanLogAppendForward(QString)));
+            connect(&analyser[i], SIGNAL(ScanLogClear()), this, SLOT(ScanLogClearForward()));
+
+            scanner[i].run();
+            analyser[i].run();
+        }
+        logstr = "扫描队列现有文件夹 " + QString::number(folder_queue.count()) + " 份，相片 " + QString::number(file_queue.count()) + " 张。";
+        emit ScanLogAppend(logstr);
+    }
+
+    logstr = "数据库写入开始时间：" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+    emit ScanLogAppend(logstr);
+
+    DatabaseSaveThread saver;
+    connect(&saver, SIGNAL(Finish()), this, SLOT(Saved()));
+    saver.run();
+
+    while(!status_saved) { }
+
+    logstr = "数据库写入结束时间：" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") + "\n扫描结束！";
+    emit ScanLogAppend(logstr);
+
+    emit Done();
+}
+
+void CurrentScanThread::Saved() {
+    status_saved = true;
+}
+
+void CurrentScanThread::ScanLogAppendForward(QString str) {
+    emit ScanLogAppend(str);
+}
+
+void CurrentScanThread::ScanLogClearForward() {
+    emit ScanLogClear();
+}
+
 void ScanThread::run() {
     if(folder_queue.isEmpty())
         return;
@@ -60,8 +115,8 @@ void ScanThread::Scanner() {
     return;
 }
 
-extern QSqlDatabase global_sqlite_database;
 extern QString current_scan_task_id;
+extern QMutex current_exif_raw_data_mutex;
 QString AnalyseThread::DoAnalyse(QString filepath) {
     QString exif_disp = "";
     QString str_log;
@@ -78,10 +133,15 @@ QString AnalyseThread::DoAnalyse(QString filepath) {
         else {
             bool fuck_blank = false;
             ExivRaw temp_exiv_raw;
-
+            temp_exiv_raw.setTask_id(current_scan_task_id);
+            QString file_title = filepath.right(filepath.length()-filepath.lastIndexOf("/")-1);
+            temp_exiv_raw.setFile_name(file_title);
+            temp_exiv_raw.setFile_path(filepath);
+            temp_exiv_raw.setTitle(file_title);
             foreach(QString index, exif_mode_table) {
                 QString value = ed[index.toStdString()].toString().c_str();
-                if(QString::compare(value.trimmed(), "") != 0) {
+                value = value.trimmed();
+                if(QString::compare(value, "") != 0) {
                     fuck_blank = true;
                     exif_disp += (index + ": " + value + "\n");
 
@@ -116,47 +176,28 @@ QString AnalyseThread::DoAnalyse(QString filepath) {
                     else if(QString::compare(index, "Exif.Photo.DateTimeOriginal") == 0) {
                         temp_exiv_raw.setShooting_datetime(value);
                     }
+                    else if(QString::compare(index, "Exif.Photo.DateTimeOriginal") == 0) {
+                        temp_exiv_raw.setShooting_datetime(value);
+                    }
+                    // 20200405 update
+                    else if(QString::compare(index, "Exif.Photo.WhiteBalance") == 0) {
+                        temp_exiv_raw.setWhite_balance(value);
+                    }
+                    else if(QString::compare(index, "Exif.Photo.MeteringMode") == 0) {
+                        temp_exiv_raw.setMetering_mode(value);
+                    }
 
                 }
             }
 
             if(fuck_blank) {
                 str_log = filepath + ":\n" + exif_disp + "\n";
-                QSqlQuery query(global_sqlite_database);
-                QString sql = "insert into EXIF_RAW";
-                sql.append("(task_id, file_name, file_path, title, manufacturer, camera_model, lens_model, shooting_datetime, ");
-                sql.append("phyical_focus_length, equivalent_focus_length, iso, aperture, shutter_speed, shutter_counter, ");
-                sql.append("exposure_compensation, flash_status, white_balance, shooting_mode, metering_mode, comment) values");
-                sql.append("('"); sql.append(current_scan_task_id); sql.append("', ");
-                sql.append("'"); sql.append(filepath.right(filepath.length()-filepath.lastIndexOf("/")-1)); sql.append("', ");
-                sql.append("'"); sql.append(filepath); sql.append("', ");
-                sql.append("'"); sql.append(filepath.right(filepath.length()-filepath.lastIndexOf("/")-1)); sql.append("', ");
-                sql.append("'"); sql.append(temp_exiv_raw.getManufacturer()); sql.append("', ");
-                sql.append("'"); sql.append(temp_exiv_raw.getCamera_model()); sql.append("', ");
-                sql.append("'"); sql.append(temp_exiv_raw.getLens_model()); sql.append("', ");
-                sql.append("'"); sql.append(temp_exiv_raw.getShooting_datetime()); sql.append("', ");
-                sql.append("'"); sql.append(temp_exiv_raw.getPhyical_focus_length()); sql.append("', ");
-                sql.append("'"); sql.append(temp_exiv_raw.getEquivalent_focus_length()); sql.append("', ");
-                sql.append("'"); sql.append(temp_exiv_raw.getIso()); sql.append("', ");
-                sql.append("'"); sql.append(temp_exiv_raw.getAperture()); sql.append("', ");
-                sql.append("'"); sql.append(temp_exiv_raw.getShutter_speed()); sql.append("', ");
-                sql.append("'"); sql.append(temp_exiv_raw.getShutter_counter()); sql.append("', ");
-                sql.append("'"); sql.append(temp_exiv_raw.getExposure_compensation()); sql.append("', ");
-                sql.append("'"); sql.append(temp_exiv_raw.getFlash_status()); sql.append("', ");
-                sql.append("'"); sql.append(temp_exiv_raw.getWhite_balance()); sql.append("', ");
-                sql.append("'"); sql.append(temp_exiv_raw.getShooting_mode()); sql.append("', ");
-                sql.append("'"); sql.append(temp_exiv_raw.getMetering_mode()); sql.append("', ");
-                sql.append("'"); sql.append(temp_exiv_raw.getComment()); sql.append("')");
-                //qDebug() << sql;
-                if(!query.exec(sql)) {
-                    qDebug() << "the fucking db cannot writing fucking data";
-                }
-                else {
-                    QMutexLocker lockerCounter(&analyse_counter_mutex);
-                    analyse_counter++;
-                    lockerCounter.unlock();
-                }
-                // current_exif_raw_data.append(temp_exiv_raw);
+                // QMutexLocker lockerCounter(&analyse_counter_mutex);
+                // analyse_counter++;
+                // lockerCounter.unlock();
+                QMutexLocker lockerExif(&current_exif_raw_data_mutex);
+                current_exif_raw_data.append(temp_exiv_raw);
+                lockerExif.unlock();
             }
         }
     }
@@ -186,5 +227,101 @@ void AnalyseThread::run() {
     if(file_queue.isEmpty())
         return;
     Analyser();
+    return;
+}
+
+void DatabaseSaveThread::run() {
+    Save();
+    emit Finish();
+    return;
+}
+
+extern QSqlDatabase global_sqlite_database;
+void DatabaseSaveThread::Save() {
+    QSqlQuery query(global_sqlite_database);
+    QString sql = "INSERT INTO EXIF_RAW";
+    sql.append("(task_id, file_name, file_path, title, manufacturer, camera_model, lens_model, shooting_datetime, ");
+    sql.append("phyical_focus_length, equivalent_focus_length, iso, aperture, shutter_speed, shutter_counter, ");
+    sql.append("exposure_compensation, flash_status, white_balance, shooting_mode, metering_mode, comment) VALUES");
+    sql.append("(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");  // 仿佛挂满了奥秘 小SQLite你是不是有很多问号
+    query.prepare(sql);
+
+    // 先写 $(EXIF_RAW表的字段-id) 个 if-else, 反射再说
+    qDebug() << "current exif raw data counter = " << QString::number(current_exif_raw_data.count());
+    for(int i = 0; i < 20; i++) {
+        QVariantList fuck_variant_item;
+        foreach(ExivRaw raw, current_exif_raw_data) {
+            switch(i) {
+                case 0:
+                    fuck_variant_item << raw.getTask_id();
+                    break;
+                case 1:
+                    fuck_variant_item << raw.getFile_name();
+                    break;
+                case 2:
+                    fuck_variant_item << raw.getFile_path();
+                    break;
+                case 3:
+                    fuck_variant_item << raw.getTitle();
+                    break;
+                case 4:
+                    fuck_variant_item << raw.getManufacturer();
+                    break;
+                case 5:
+                    fuck_variant_item << raw.getCamera_model();
+                    break;
+                case 6:
+                    fuck_variant_item << raw.getLens_model();
+                    break;
+                case 7:
+                    fuck_variant_item << raw.getShooting_datetime();
+                    break;
+                case 8:
+                    fuck_variant_item << raw.getPhyical_focus_length();
+                    break;
+                case 9:
+                    fuck_variant_item << raw.getEquivalent_focus_length();
+                    break;
+                case 10:
+                    fuck_variant_item << raw.getIso();
+                    break;
+                case 11:
+                    fuck_variant_item << raw.getAperture();
+                    break;
+                case 12:
+                    fuck_variant_item << raw.getShutter_speed();
+                    break;
+                case 13:
+                    fuck_variant_item << raw.getShutter_counter();
+                    break;
+                case 14:
+                    fuck_variant_item << raw.getExposure_compensation();
+                    break;
+                case 15:
+                    fuck_variant_item << raw.getFlash_status();
+                    break;
+                case 16:
+                    fuck_variant_item << raw.getWhite_balance();
+                    break;
+                case 17:
+                    fuck_variant_item << raw.getShooting_mode();
+                    break;
+                case 18:
+                    fuck_variant_item << raw.getMetering_mode();
+                    break;
+                case 19:
+                    fuck_variant_item << raw.getComment();
+                    break;
+                default:
+                    continue;
+            }
+        }
+        query.addBindValue(fuck_variant_item);
+    }
+    if (!query.execBatch())
+        qDebug() << "Error: the fucking database: " << query.lastError();
+    else{
+        qDebug() << "save data to database succeed.";
+    }
     return;
 }

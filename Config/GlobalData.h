@@ -13,6 +13,8 @@ SystemConfig& GetSystemConfig();
 
 void InitGlobalVar();
 
+void InitScanParameter();
+
 class ExivRaw {
 private:
     QString task_id;

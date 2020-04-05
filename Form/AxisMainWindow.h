@@ -55,6 +55,9 @@ private:
 
     void DoScanProcess();
     void DoStatProcess();
+    bool TableInsertBlank(QTableWidget *table);
+    bool TableInsert(QTableWidget* table, QList<QString> argv);
+    bool TableResultInsert(QSqlQuery* query, double query_counter);
 
 private slots:
     void RibbonBtnClick();
@@ -63,8 +66,11 @@ private slots:
     void BtnBrowsePathClick();
     void BtnScanClick();
     void BtnExportResultClick();
+    void BtnScanViewSwitchClick();
+    void CurrentScanFinish();
 
 public slots:
+    void ScanLogClear();
     void ScanLogAppend(QString logstr);
 
 };

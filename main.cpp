@@ -18,6 +18,7 @@ int scan_counter = 0;
 QMutex analyse_counter_mutex;
 int analyse_counter = 0;
 QList<QString> exif_mode_table;
+QMutex current_exif_raw_data_mutex;
 QList<ExivRaw> current_exif_raw_data;
 QString current_scan_task_id;
 // 很扯淡的东西结束
@@ -29,6 +30,8 @@ int main(int argc, char *argv[]) {
 
     // init
     InitGlobalVar();
+    InitScanParameter();
+
     if(!InitDatabase()) {
         qDebug() << "fuck! no fucking database";
         exit(-1);
