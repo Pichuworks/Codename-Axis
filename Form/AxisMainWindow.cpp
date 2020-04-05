@@ -418,8 +418,6 @@ void AxisMainWindow::DoStatProcess() {
     QString task_time_finish_str;
 
     double query_counter;
-    QDateTime task_time_start;
-    QDateTime task_time_finish;
 
     sqlstr = "SELECT task_photo_counter, task_time_start, task_time_finish FROM EXIF_TASK WHERE task_id = ?";
     query.prepare(sqlstr);
@@ -434,14 +432,15 @@ void AxisMainWindow::DoStatProcess() {
     }
 
     query_counter = query_counter_str.toDouble();
-    task_time_start = QDateTime::fromString(task_time_start_str);
-    task_time_finish = QDateTime::fromString(task_time_finish_str);
-    uint offset_time_data = task_time_finish.toTime_t() - task_time_start.toTime_t();
+    QDateTime task_time_start = QDateTime::fromString(task_time_start_str, "yyyy-MM-dd hh:mm:ss");
+    QDateTime task_time_finish = QDateTime::fromString(task_time_finish_str, "yyyy-MM-dd hh:mm:ss");
+    int offset_time_data = task_time_finish.toTime_t() - task_time_start.toTime_t();
     qDebug() << "task_time_start = " +  task_time_start_str;
     qDebug() << "task_time_finish = " +  task_time_finish_str;
-    qDebug() << "raw task_time_start = " +  QString::number(task_time_finish.toTime_t());
-    qDebug() << "raw task_time_finish = " +  QString::number(task_time_start.toTime_t());
+    qDebug() << "raw task_time_start = " +  QString::number(task_time_start.toTime_t());
+    qDebug() << "raw task_time_finish = " +  QString::number(task_time_finish.toTime_t());
     qDebug() << "raw offset time data = " +  QString::number(offset_time_data);
+
     QString offset_time_str, offset_hour, offset_minute, offset_second;
     offset_hour = (offset_time_data/3600) > 10 ? QString::number((offset_time_data/3600)) : "0" + QString::number((offset_time_data/3600));
     offset_time_data %= 3600;
