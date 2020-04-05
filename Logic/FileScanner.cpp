@@ -25,7 +25,7 @@ void CurrentScanThread::Start() {
     emit ScanLogAppend(logstr);
 
     ScanThread scanner[FUCK_THREADS];
-    AnalyseThread analyser[FUCK_THREADS];
+    AnalyseThread analyser[FUCK_THREADS * 4 + 1];
 
     while(!folder_queue.isEmpty() || !file_queue.isEmpty()) {
         for(int i = 0; i < FUCK_THREADS; i++) {
@@ -33,9 +33,19 @@ void CurrentScanThread::Start() {
             connect(&scanner[i], SIGNAL(ScanLogClear()), this, SLOT(ScanLogClearForward()));
             connect(&analyser[i], SIGNAL(ScanLogAppend(QString)), this, SLOT(ScanLogAppendForward(QString)));
             connect(&analyser[i], SIGNAL(ScanLogClear()), this, SLOT(ScanLogClearForward()));
-
             scanner[i].run();
             analyser[i].run();
+            if(i != 0) {
+                connect(&analyser[i*2], SIGNAL(ScanLogAppend(QString)), this, SLOT(ScanLogAppendForward(QString)));
+                connect(&analyser[i*2], SIGNAL(ScanLogClear()), this, SLOT(ScanLogClearForward()));
+                connect(&analyser[i*3], SIGNAL(ScanLogAppend(QString)), this, SLOT(ScanLogAppendForward(QString)));
+                connect(&analyser[i*3], SIGNAL(ScanLogClear()), this, SLOT(ScanLogClearForward()));
+                connect(&analyser[i*4], SIGNAL(ScanLogAppend(QString)), this, SLOT(ScanLogAppendForward(QString)));
+                connect(&analyser[i*4], SIGNAL(ScanLogClear()), this, SLOT(ScanLogClearForward()));
+                analyser[i*2].run();
+                analyser[i*3].run();
+                analyser[i*4].run();
+            }
         }
         logstr = "扫描队列现有文件夹 " + QString::number(folder_queue.count()) + " 份，相片 " + QString::number(file_queue.count()) + " 张。";
         emit ScanLogAppend(logstr);
@@ -215,10 +225,10 @@ void AnalyseThread::Analyser() {
 
     QString result = DoAnalyse(now_filepath);
 
-    QMutexLocker lockerFile(&analyse_lock);
-    analyse_result.append(result);
+    // QMutexLocker lockerFile(&analyse_lock);
+    // analyse_result.append(result);
     // emit ScanLogAppend(result);
-    lockerFile.unlock();
+    // lockerFile.unlock();
 
     return;
 }
@@ -239,6 +249,7 @@ void DatabaseSaveThread::run() {
 extern QSqlDatabase global_sqlite_database;
 void DatabaseSaveThread::Save() {
     QSqlQuery query(global_sqlite_database);
+    global_sqlite_database.transaction();
     QString sql = "INSERT INTO EXIF_RAW";
     sql.append("(task_id, file_name, file_path, title, manufacturer, camera_model, lens_model, shooting_datetime, ");
     sql.append("phyical_focus_length, equivalent_focus_length, iso, aperture, shutter_speed, shutter_counter, ");
@@ -323,5 +334,6 @@ void DatabaseSaveThread::Save() {
     else{
         qDebug() << "save data to database succeed.";
     }
+    global_sqlite_database.commit();
     return;
 }

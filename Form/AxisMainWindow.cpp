@@ -274,6 +274,7 @@ void AxisMainWindow::ScanLogClear()
 void AxisMainWindow::ScanLogAppend(QString logstr)
 {
     ui->tbLScanLog->append(logstr);
+    qDebug() << "[ScanLog] " << logstr;
 }
 
 
